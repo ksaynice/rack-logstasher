@@ -6,6 +6,7 @@ module Rack
     class Logger < Rack::CommonLogger
       def initialize(app, logger, opts = {})
         super(app, logger)
+        @app_name = opts[:app_name] || ''
         @extra_request_headers = opts[:extra_request_headers] || {}
         @extra_response_headers = opts[:extra_response_headers] || {}
       end
@@ -39,7 +40,7 @@ module Rack
           end
         end
 
-        event = LogStash::Event.new('@fields' => data, '@tags' => ['request'])
+        event = LogStash::Event.new('@fields' => data, '@tags' => ['request'], 'app' => @app_name)
         msg = event.to_json + "\n"
         if @logger.respond_to?(:write)
           @logger.write(msg)
